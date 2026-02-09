@@ -34,8 +34,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - uses: truongnh1992/gemini-ai-code-reviewer@main
+        continue-on-error: true
         with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          GEMINI_MODEL: gemini-2.0-flash
-          EXCLUDE: "*.md,*.txt,package-lock.json,*.yml,*.yaml"
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+            GEMINI_MODEL: gemini-2.5-flash
+            EXCLUDE: "*.md,*.txt,package-lock.json,*.yml,*.yaml"
