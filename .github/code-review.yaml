@@ -1,31 +1,25 @@
-name: ControlCore Auto AI Reviewer
+name: Gemini PR Reviewer
 
 on:
   pull_request:
-    # Triggers on PR creation, new commits (synchronize), or reopening
-    types: [opened, synchronize, reopened]
-
-permissions:
-  contents: read
-  pull-requests: write
+    types: [opened, synchronize]
 
 jobs:
-  gemini-code-review:
+  review:
     runs-on: ubuntu-latest
-    # This ensures the action only runs on your specific repository
-    if: github.repository == 'GREENRAT-K405/playground' # Update this to your repo path
-    
+    permissions:
+      contents: read
+      pull-requests: write
     steps:
-      - name: Checkout Code
+      - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Gemini AI Review
-        uses: truongnh1992/gemini-ai-code-reviewer@main
+      - name: Run Gemini Reviewer
+        uses: google-github-actions/run-gemini-cli@v1
         with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          GEMINI_MODEL: gemini-2.0-flash
-          # Focused exclusions for a control systems project
-          EXCLUDE: "*.md, *.txt, *.json, *.yml, *.yaml, .gitignore, LICENSE, docs/**"
+          gemini-api-key: ${{ secrets.GEMINI_API_KEY }}
+          model: "gemini-2.5-flash"
+          # Optional: Focus the review on specific logic or style
+          prompt: "Please review this code for bugs, security issues, and adherence to clean code principles."
