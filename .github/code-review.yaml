@@ -1,42 +1,31 @@
-name: ControlCore AI Reviewer
+name: ControlCore Auto AI Reviewer
 
 on:
-  issue_comment:
-    types: [created]
+  pull_request:
+    # Triggers on PR creation, new commits (synchronize), or reopening
+    types: [opened, synchronize, reopened]
 
 permissions:
   contents: read
   pull-requests: write
-  issues: write
 
 jobs:
   gemini-code-review:
     runs-on: ubuntu-latest
-    # Verifies the comment is on a Pull Request and contains the trigger command
-    if: |
-      github.event.issue.pull_request &&
-      contains(github.event.comment.body, '/gemini-review')
+    # This ensures the action only runs on your specific repository
+    if: github.repository == 'GREENRAT-K405/playground' # Update this to your repo path
     
     steps:
-      - name: Checkout ControlCore Source
+      - name: Checkout Code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Essential for the AI to compare the diff between branches
+          fetch-depth: 0
 
-      - name: Fetch PR Metadata
-        id: pr
-        run: |
-          PR_JSON=$(gh api repos/${{ github.repository }}/pulls/${{ github.event.issue.number }})
-          echo "head_sha=$(echo $PR_JSON | jq -r .head.sha)" >> $GITHUB_OUTPUT
-          echo "base_sha=$(echo $PR_JSON | jq -r .base.sha)" >> $GITHUB_OUTPUT
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Gemini AI Analysis
+      - name: Gemini AI Review
         uses: truongnh1992/gemini-ai-code-reviewer@main
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GEMINI_MODEL: gemini-2.0-flash
-          # Focus the AI on logic-heavy files (C++, Python) and ignore noise
-          EXCLUDE: "*.md,*.txt,package-lock.json,*.yml,*.yaml,.gitignore,LICENSE,*.pdf"
+          # Focused exclusions for a control systems project
+          EXCLUDE: "*.md, *.txt, *.json, *.yml, *.yaml, .gitignore, LICENSE, docs/**"
