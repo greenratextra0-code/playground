@@ -4,7 +4,10 @@ on:
   issue_comment:
     types: [created]
 
-permissions: write-all
+permissions:
+    contents: read        # Read the code
+    pull-requests: write  # Comment on the PR diff
+    issues: write         # Comment on the issue/PR conversation
 
 jobs:
   gemini-code-review:
